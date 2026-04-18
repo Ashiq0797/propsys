@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python simulate.py)",
+      "Bash(curl -s http://localhost:5000/properties)",
+      "Bash(curl -s 'http://localhost:5000/payments?lease_id=1')",
+      "Bash(python -m json.tool)",
+      "Bash(npm --version)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npx tailwindcss *)",
+      "Bash(npm run *)",
+      "Bash(curl *)"
+    ]
+  }
+}
