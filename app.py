@@ -114,9 +114,11 @@ class Maintenance(db.Model):
 # ── Helpers ─────────────────────────────────────────────
 
 def err(msg, code=400):
+    # Return a JSON error response with optional HTTP status code
     return jsonify({'error': msg}), code
 
 def parse_date(s):
+    # Convert a date string (YYYY-MM-DD) or date object to a date object, or return None if empty
     if not s:
         return None
     if isinstance(s, date):
@@ -128,6 +130,7 @@ def parse_date(s):
 
 @app.route('/properties', methods=['GET'])
 def get_properties():
+    # Fetch all properties, optionally filter by status (available/occupied)
     status = request.args.get('status')
     q = Property.query
     if status:
@@ -136,6 +139,7 @@ def get_properties():
 
 @app.route('/properties', methods=['POST'])
 def create_property():
+    # Create a new property (requires address and monthly_rent)
     d = request.json or {}
     if not d.get('address') or not d.get('monthly_rent'):
         return err('address and monthly_rent required')
@@ -148,10 +152,12 @@ def create_property():
 
 @app.route('/properties/<int:pid>', methods=['GET'])
 def get_property(pid):
+    # Fetch a single property by ID, return 404 if not found
     return jsonify(Property.query.get_or_404(pid).to_dict())
 
 @app.route('/properties/<int:pid>', methods=['PUT'])
 def update_property(pid):
+    # Update property fields: address, type, bedrooms, monthly_rent, status
     p = Property.query.get_or_404(pid)
     d = request.json or {}
     for field in ['address', 'type', 'bedrooms', 'monthly_rent', 'status']:
@@ -162,6 +168,7 @@ def update_property(pid):
 
 @app.route('/properties/<int:pid>', methods=['DELETE'])
 def delete_property(pid):
+    # Delete a property by ID
     p = Property.query.get_or_404(pid)
     db.session.delete(p); db.session.commit()
     return jsonify({'deleted': pid})
@@ -171,10 +178,12 @@ def delete_property(pid):
 
 @app.route('/tenants', methods=['GET'])
 def get_tenants():
+    # Fetch all tenants
     return jsonify([t.to_dict() for t in Tenant.query.all()])
 
 @app.route('/tenants', methods=['POST'])
 def create_tenant():
+    # Create a new tenant (requires name and email, email must be unique)
     d = request.json or {}
     if not d.get('name') or not d.get('email'):
         return err('name and email required')
@@ -186,10 +195,12 @@ def create_tenant():
 
 @app.route('/tenants/<int:tid>', methods=['GET'])
 def get_tenant(tid):
+    # Fetch a single tenant by ID
     return jsonify(Tenant.query.get_or_404(tid).to_dict())
 
 @app.route('/tenants/<int:tid>', methods=['PUT'])
 def update_tenant(tid):
+    # Update tenant fields: name, email, phone
     t = Tenant.query.get_or_404(tid)
     d = request.json or {}
     for field in ['name', 'email', 'phone']:
@@ -200,6 +211,7 @@ def update_tenant(tid):
 
 @app.route('/tenants/<int:tid>', methods=['DELETE'])
 def delete_tenant(tid):
+    # Delete a tenant by ID
     t = Tenant.query.get_or_404(tid)
     db.session.delete(t); db.session.commit()
     return jsonify({'deleted': tid})
@@ -209,6 +221,7 @@ def delete_tenant(tid):
 
 @app.route('/leases', methods=['GET'])
 def get_leases():
+    # Fetch all leases, optionally filter by tenant_id, property_id, or status
     q = Lease.query
     tenant_id = request.args.get('tenant_id')
     property_id = request.args.get('property_id')
@@ -223,6 +236,7 @@ def get_leases():
 
 @app.route('/leases', methods=['POST'])
 def create_lease():
+    # Create a new lease; validates property and tenant exist, no active lease on property
     d = request.json or {}
     required = ['property_id', 'tenant_id', 'start_date', 'end_date', 'monthly_rent_at_time']
     missing = [k for k in required if k not in d]
@@ -253,10 +267,12 @@ def create_lease():
 
 @app.route('/leases/<int:lid>', methods=['GET'])
 def get_lease(lid):
+    # Fetch a single lease by ID
     return jsonify(Lease.query.get_or_404(lid).to_dict())
 
 @app.route('/leases/<int:lid>', methods=['PUT'])
 def update_lease(lid):
+    # Update lease fields (start_date, end_date, monthly_rent_at_time, status) and sync property status
     l = Lease.query.get_or_404(lid)
     d = request.json or {}
     if 'status' in d and d['status'] == 'active' and l.status != 'active':
@@ -290,6 +306,7 @@ def update_lease(lid):
 
 @app.route('/leases/<int:lid>', methods=['DELETE'])
 def delete_lease(lid):
+    # Delete a lease and mark property as available if no other active leases exist
     l = Lease.query.get_or_404(lid)
     was_active = l.status == 'active'
     pid = l.property_id
@@ -305,6 +322,7 @@ def delete_lease(lid):
 
 @app.route('/leases/<int:lid>/terminate', methods=['POST'])
 def terminate_lease(lid):
+    # Terminate a lease and mark the property as available
     l = Lease.query.get_or_404(lid)
     l.status = 'terminated'
     l.property.status = 'available'
@@ -316,6 +334,7 @@ def terminate_lease(lid):
 
 @app.route('/payments', methods=['GET'])
 def get_payments():
+    # Fetch all payments, optionally filter by lease_id or tenant_id
     q = Payment.query
     lease_id = request.args.get('lease_id')
     tenant_id = request.args.get('tenant_id')
@@ -327,6 +346,7 @@ def get_payments():
 
 @app.route('/payments', methods=['POST'])
 def create_payment():
+    # Create a new payment; validates lease exists
     d = request.json or {}
     if not d.get('lease_id') or d.get('amount') is None or not d.get('due_date'):
         return err('lease_id, amount, and due_date required')
@@ -348,10 +368,12 @@ def create_payment():
 
 @app.route('/payments/<int:pid>', methods=['GET'])
 def get_payment(pid):
+    # Fetch a single payment by ID
     return jsonify(Payment.query.get_or_404(pid).to_dict())
 
 @app.route('/payments/<int:pid>', methods=['PUT'])
 def update_payment(pid):
+    # Update payment fields: amount, due_date, paid_date, method
     p = Payment.query.get_or_404(pid)
     d = request.json or {}
     if 'amount' in d:
@@ -373,6 +395,7 @@ def update_payment(pid):
 
 @app.route('/payments/<int:pid>', methods=['DELETE'])
 def delete_payment(pid):
+    # Delete a payment by ID
     p = Payment.query.get_or_404(pid)
     db.session.delete(p); db.session.commit()
     return jsonify({'deleted': pid})
@@ -382,6 +405,7 @@ def delete_payment(pid):
 
 @app.route('/maintenance', methods=['GET'])
 def get_maintenance():
+    # Fetch all maintenance requests, optionally filter by property_id, tenant_id, or status
     q = Maintenance.query
     property_id = request.args.get('property_id')
     tenant_id = request.args.get('tenant_id')
@@ -389,7 +413,7 @@ def get_maintenance():
     if property_id:
         q = q.filter_by(property_id=int(property_id))
     if tenant_id:
-        # Find properties that this tenant has leased (past or present)
+        # Find all maintenance tickets for properties this tenant has leased (current or past)
         leased_property_ids = db.session.query(Lease.property_id).filter(
             Lease.tenant_id == int(tenant_id)
         ).distinct().subquery()
@@ -400,6 +424,7 @@ def get_maintenance():
 
 @app.route('/maintenance', methods=['POST'])
 def create_maintenance():
+    # Create a new maintenance request; validates property exists
     d = request.json or {}
     if not d.get('property_id') or not d.get('issue'):
         return err('property_id and issue required')
@@ -414,10 +439,12 @@ def create_maintenance():
 
 @app.route('/maintenance/<int:mid>', methods=['GET'])
 def get_maintenance_one(mid):
+    # Fetch a single maintenance request by ID
     return jsonify(Maintenance.query.get_or_404(mid).to_dict())
 
 @app.route('/maintenance/<int:mid>', methods=['PUT'])
 def update_maintenance(mid):
+    # Update maintenance request fields: issue, status
     m = Maintenance.query.get_or_404(mid)
     d = request.json or {}
     if 'issue' in d:
@@ -429,6 +456,7 @@ def update_maintenance(mid):
 
 @app.route('/maintenance/<int:mid>', methods=['DELETE'])
 def delete_maintenance(mid):
+    # Delete a maintenance request by ID
     m = Maintenance.query.get_or_404(mid)
     db.session.delete(m); db.session.commit()
     return jsonify({'deleted': mid})
@@ -438,6 +466,7 @@ def delete_maintenance(mid):
 
 @app.route('/dashboard/stats', methods=['GET'])
 def dashboard_stats():
+    # Fetch landlord portfolio stats: properties, occupancy, income, overdue, maintenance
     total_props = Property.query.count()
     occupied = Property.query.filter_by(status='occupied').count()
     active_leases = Lease.query.filter_by(status='active').count()
@@ -467,6 +496,40 @@ def dashboard_stats():
         'monthly_rental_income': round(monthly_income, 2),
         'overdue_payments_count': overdue_count,
         'open_maintenance_count': open_maintenance,
+    })
+
+
+# ── Tenant self-view ────────────────────────────────────
+
+@app.route('/me', methods=['GET'])
+def me():
+    # Fetch tenant's own profile: active lease (with property), next unpaid rent, open maintenance count
+    tid = int(request.args.get('tenant_id', 1))
+    tenant = Tenant.query.get_or_404(tid)
+    lease = Lease.query.filter_by(tenant_id=tid, status='active').first()
+    lease_dict = None
+    next_payment = None
+    open_maint = 0
+    if lease:
+        ld = lease.to_dict()
+        ld['property'] = lease.property.to_dict() if lease.property else None
+        lease_dict = ld
+        unpaid = (
+            Payment.query
+            .filter_by(lease_id=lease.id, paid_date=None)
+            .order_by(Payment.due_date.asc())
+            .first()
+        )
+        if unpaid:
+            next_payment = unpaid.to_dict()
+        open_maint = Maintenance.query.filter_by(
+            property_id=lease.property_id, status='open'
+        ).count()
+    return jsonify({
+        'tenant': tenant.to_dict(),
+        'lease': lease_dict,
+        'next_payment': next_payment,
+        'open_maintenance_count': open_maint,
     })
 
 

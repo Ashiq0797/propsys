@@ -3,10 +3,8 @@ import { Layout } from './components/Layout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ToastProvider } from './components/Toast'
 import { Dashboard } from './pages/Dashboard'
-import { Properties } from './pages/Properties'
-import { Tenants } from './pages/Tenants'
-import { Leases } from './pages/Leases'
-import { Payments } from './pages/Payments'
+import { MyLease } from './pages/MyLease'
+import { MyRent } from './pages/MyRent'
 import { Maintenance } from './pages/Maintenance'
 
 export default function App() {
@@ -17,10 +15,8 @@ export default function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route index element={<Dashboard />} />
-              <Route path="properties" element={<Properties />} />
-              <Route path="tenants" element={<Tenants />} />
-              <Route path="leases" element={<Leases />} />
-              <Route path="payments" element={<Payments />} />
+              <Route path="lease" element={<MyLease />} />
+              <Route path="rent" element={<MyRent />} />
               <Route path="maintenance" element={<Maintenance />} />
             </Route>
           </Routes>

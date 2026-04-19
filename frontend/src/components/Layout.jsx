@@ -1,19 +1,32 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { api, CURRENT_TENANT_ID } from '../api/client'
 
 const links = [
   { to: '/', label: 'Dashboard', end: true },
-  { to: '/properties', label: 'Properties' },
-  { to: '/tenants', label: 'Tenants' },
-  { to: '/leases', label: 'Leases' },
-  { to: '/payments', label: 'Payments' },
+  { to: '/lease', label: 'My Lease' },
+  { to: '/rent', label: 'My Rent' },
   { to: '/maintenance', label: 'Maintenance' },
 ]
 
 export function Layout() {
+  const [tenantName, setTenantName] = useState('')
+
+  useEffect(() => {
+    api.get(`/tenants/${CURRENT_TENANT_ID}`)
+      .then((r) => setTenantName(r.data.name))
+      .catch(() => setTenantName(''))
+  }, [])
+
   return (
     <div className="flex h-full">
       <aside className="w-56 bg-slate-900 text-slate-100 p-4 flex flex-col gap-1">
-        <div className="text-xl font-bold mb-4 px-2">PropSys</div>
+        <div className="mb-4 px-2">
+          <div className="text-xl font-bold">PropSys</div>
+          {tenantName && (
+            <div className="text-xs text-slate-400 mt-0.5">{tenantName}</div>
+          )}
+        </div>
         {links.map((l) => (
           <NavLink
             key={l.to}
