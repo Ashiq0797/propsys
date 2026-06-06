@@ -1,4 +1,4 @@
-# PropSys — Property Management System
+# PropSys - Property Management System
 
 A full-stack property management app for landlords and tenants. Landlords can manage properties, tenants, leases, rent payments, and maintenance requests. Tenants can view their own lease, payments, and submit maintenance requests.
 
@@ -19,14 +19,14 @@ A full-stack property management app for landlords and tenants. Landlords can ma
 
 ## Features
 
-- **Landlords** — track properties, monthly rent roll, occupancy, and per-landlord dashboards
-- **Properties** — flats, houses, studios with bedrooms, rent, and status (`available` / `occupied`)
-- **Tenants** — tenant records with contact details
-- **Leases** — start/end dates, deposit, status, with automatic detection of overlapping bookings
-- **Payments** — monthly rent payments auto-generated for each lease, with `paid` / `pending` / `overdue` statuses synced against today's date
-- **Maintenance requests** — open/in-progress/resolved, priority levels
-- **Automation alerts** — upcoming rent reminders, leases expiring within 45 days, and stale maintenance follow-ups
-- **Seeded demo data** — the database is pre-populated with example landlords, tenants, properties, leases, and payments on first run
+- **Landlords**: track properties, monthly rent roll, occupancy, and per-landlord dashboards
+- **Properties**: flats, houses, studios with bedrooms, rent, and status (`available` / `occupied`)
+- **Tenants**: tenant records with contact details
+- **Leases**: start/end dates, deposit, status, with automatic detection of overlapping bookings
+- **Payments**: monthly rent payments auto-generated for each lease, with `paid` / `pending` / `overdue` statuses synced against today's date
+- **Maintenance requests**: open/in-progress/resolved, priority levels
+- **Automation alerts**: upcoming rent reminders, leases expiring within 45 days, and stale maintenance follow-ups
+- **Seeded demo data**: the database is pre-populated with example landlords, tenants, properties, leases, and payments on first run
 
 ## Project Structure
 
@@ -80,16 +80,16 @@ cd ..
 
 ## Running the App
 
-You need **two terminals** — one for the API, one for the frontend.
+You need **two terminals**: one for the API, one for the frontend.
 
-### Terminal 1 — start the Flask API
+### Terminal 1: start the Flask API
 ```bash
 # (with venv activated)
 python app.py
 ```
 The API runs at `http://localhost:5000`. On first run it creates `instance/propman.db` and seeds demo data automatically.
 
-### Terminal 2 — start the React frontend
+### Terminal 2: start the React frontend
 ```bash
 npm run dev
 ```
@@ -120,7 +120,7 @@ python simulate.py
 
 ## Resetting the Database
 
-Delete the SQLite file and restart the server — it will recreate the schema and re-seed the demo data:
+Delete the SQLite file and restart the server, it will recreate the schema and re-seed the demo data:
 ```bash
 rm instance/propman.db   # Windows: del instance\propman.db
 python app.py
